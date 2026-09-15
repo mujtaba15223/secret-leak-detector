@@ -1,0 +1,19 @@
+#!/bin/sh
+
+echo ""
+echo "Secret Leak Detector"
+echo "===================="
+
+python -m scanner.git_scanner
+
+STATUS=$?
+
+if [ $STATUS -ne 0 ]; then
+    echo ""
+    echo "COMMIT BLOCKED: Secret detected."
+    exit 1
+fi
+
+echo ""
+echo "Secret scan passed."
+exit 0
