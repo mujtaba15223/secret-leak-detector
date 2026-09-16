@@ -119,61 +119,6 @@ Example:
 
 ---
 
-# 🏗️ System Architecture
-
-```text
-                    ┌──────────────────────────┐
-                    │        Developer         │
-                    └────────────┬─────────────┘
-                                 │
-                    ┌────────────▼─────────────┐
-                    │   Local Repository /     │
-                    │   GitHub Repository      │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │      Scanner Engine       │
-                    └────────────┬─────────────┘
-                                 │
-                ┌────────────────┴────────────────┐
-                │                                 │
-                ▼                                 ▼
-       ┌─────────────────┐              ┌─────────────────┐
-       │ Regex Detector  │              │ Entropy Detector│
-       └────────┬────────┘              └────────┬────────┘
-                │                                 │
-                └────────────────┬────────────────┘
-                                 ▼
-                    ┌──────────────────────────┐
-                    │       Risk Engine        │
-                    │ Severity + Confidence    │
-                    └────────────┬─────────────┘
-                                 │
-                                 ▼
-                    ┌──────────────────────────┐
-                    │ Finding Deduplicator     │
-                    └────────────┬─────────────┘
-                                 │
-                    ┌────────────┴────────────┐
-                    │                         │
-                    ▼                         ▼
-          ┌──────────────────┐       ┌──────────────────┐
-          │ Terminal Output  │       │ FastAPI Backend  │
-          └──────────────────┘       └────────┬─────────┘
-                                              │
-                                              ▼
-                                     ┌──────────────────┐
-                                     │ SQLite Database  │
-                                     └────────┬─────────┘
-                                              │
-                                              ▼
-                                     ┌──────────────────┐
-                                     │ React Dashboard  │
-                                     └──────────────────┘
-```
-
----
 
 # 🧰 Technology Stack
 
@@ -212,61 +157,7 @@ Example:
 - Vercel — Frontend
 - Render — Backend
 
----
 
-# 📁 Project Structure
-
-```text
-secret-leak-detector/
-│
-├── backend/
-│   ├── api/
-│   │   ├── findings.py
-│   │   ├── metrics.py
-│   │   └── scan.py
-│   │
-│   ├── database/
-│   │   ├── database.py
-│   │   └── models.py
-│   │
-│   ├── services/
-│   │   └── metrics_service.py
-│   │
-│   └── main.py
-│
-├── frontend/
-│   ├── src/
-│   │   ├── App.jsx
-│   │   ├── main.jsx
-│   │   └── styles/
-│   │       └── index.css
-│   │
-│   ├── index.html
-│   ├── package.json
-│   └── package-lock.json
-│
-├── scanner/
-│   ├── entropy_detector.py
-│   ├── file_scanner.py
-│   ├── finding_deduplicator.py
-│   ├── git_scanner.py
-│   ├── regex_detector.py
-│   ├── risk_engine.py
-│   └── scanner.py
-│
-├── githook/
-│   ├── install_hook.py
-│   └── pre_commit
-│
-├── tests/
-│   └── sample_secrets/
-│       └── test_secret.py
-│
-├── .gitignore
-└── README.md
-```
-
----
 
 # 🔍 Scanner Components
 
@@ -405,31 +296,7 @@ The scanner checks the **staged version**, not only the working copy.
 
 ---
 
-# 🛡️ Git Pre-Commit Protection
 
-The project includes a Git pre-commit hook.
-
-The workflow is:
-
-```text
-Developer runs git commit
-          ↓
-Git pre-commit hook starts
-          ↓
-Staged files are scanned
-          ↓
-Regex + Entropy detection
-          ↓
-Risk calculation
-          ↓
-HIGH / CRITICAL?
-      ┌───┴───┐
-     YES      NO
-      │        │
-      ▼        ▼
-BLOCK       ALLOW
-COMMIT      COMMIT
-```
 
 ### Blocking policy
 
@@ -838,24 +705,6 @@ The production build should complete with output similar to:
 
 ---
 
-# 🚀 Deployment
-
-The current architecture separates the frontend and backend.
-
-```text
-                 Internet
-                    │
-          ┌─────────┴─────────┐
-          │                   │
-          ▼                   ▼
-       Vercel               Render
-          │                   │
-          ▼                   ▼
-       React UI            FastAPI API
-                              │
-                              ▼
-                           SQLite
-```
 
 ## Frontend
 
@@ -883,44 +732,6 @@ The frontend communicates with the deployed FastAPI backend rather than the loca
 
 ---
 
-# 🔄 Complete Application Workflow
-
-```text
-                 USER
-                   │
-                   ▼
-        ┌─────────────────────┐
-        │ React Web Dashboard │
-        └──────────┬──────────┘
-                   │
-                   ▼
-             FastAPI API
-                   │
-                   ▼
-          Repository Scanner
-                   │
-          ┌────────┴────────┐
-          │                 │
-          ▼                 ▼
-      Regex Engine      Entropy Engine
-          │                 │
-          └────────┬────────┘
-                   ▼
-              Risk Engine
-                   │
-                   ▼
-            Deduplication
-                   │
-                   ▼
-             Scan Results
-                   │
-          ┌────────┴────────┐
-          │                 │
-          ▼                 ▼
-       Database          Dashboard
-```
-
----
 
 # 🔐 Security Design
 
@@ -1294,29 +1105,9 @@ Open:
 http://127.0.0.1:8000/docs
 ```
 
-You can test:
 
-```text
-POST /scan/
-GET /findings/
-GET /metrics/
-DELETE /metrics/clear
-GET /health
-```
 
----
 
-# 📈 Project Goals
-
-The main goals of Secret Leak Detector are:
-
-- Detect exposed credentials early.
-- Prevent accidental secret commits.
-- Give developers immediate security feedback.
-- Reduce manual security checks.
-- Provide repository-level visibility.
-- Combine pattern detection with entropy analysis.
-- Provide a simple security dashboard.
 
 ---
 
