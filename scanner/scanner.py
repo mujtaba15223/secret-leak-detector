@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 from scanner.regex_detector import detect_secrets
@@ -12,6 +11,15 @@ IGNORED_DIRECTORIES = {
     "venv",
     "__pycache__",
     "node_modules",
+    "dist",
+    "build",
+    "data",
+}
+
+IGNORED_FILES = {
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
 }
 
 
@@ -35,10 +43,7 @@ def scan_file(file_path: str) -> list[dict]:
         start=1,
     ):
 
-        # -------------------------
         # Regex detection
-        # -------------------------
-
         for match in detect_secrets(line):
 
             finding = {
@@ -53,10 +58,7 @@ def scan_file(file_path: str) -> list[dict]:
                 calculate_risk(finding)
             )
 
-        # -------------------------
         # Entropy detection
-        # -------------------------
-
         for match in detect_high_entropy(line):
 
             finding = {
@@ -76,7 +78,10 @@ def scan_file(file_path: str) -> list[dict]:
 
 
 def should_ignore(file_path: Path) -> bool:
-    """Return True if the file is inside an ignored directory."""
+    """Return True if the file should not be scanned."""
+
+    if file_path.name in IGNORED_FILES:
+        return True
 
     return any(
         directory in file_path.parts
@@ -91,6 +96,10 @@ def scan_directory(directory: str) -> list[dict]:
 
     if not root.exists():
         print(f"❌ Directory not found: {directory}")
+        return []
+
+    if not root.is_dir():
+        print(f"❌ Not a directory: {directory}")
         return []
 
     all_findings = []
@@ -172,8 +181,6 @@ if __name__ == "__main__":
 
     results = scan_directory(directory)
 
-    # Remove duplicate detections of the same finding.
     results = deduplicate_findings(results)
 
     print_findings(results)
-
